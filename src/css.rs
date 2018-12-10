@@ -4,8 +4,6 @@ use ::logos::{Lexer, Logos, Slice, Source};
 pub enum Token {
     #[end]
     End,
-    #[error]
-    UnexpectedToken,
 
     #[regex = "\"([^\"\\\\]|\\\\.)*\""]
     #[regex = "'([^'\\\\]|\\\\.)*'"]
@@ -32,10 +30,6 @@ pub enum Token {
     Number,
     #[regex = "[-a-zA-Z_][a-zA-Z0-9_-]*"]
     Ident,
-
-    #[token = "/*"]
-    #[callback = "ignore_comments"]
-    CommentStart,
 
     #[token = "@"]
     At,
@@ -68,8 +62,14 @@ pub enum Token {
     LeftBracket,
     #[token = "]"]
     RightBracket,
+
+    #[token = "/*"]
+    #[callback = "ignore_comments"]
+    #[error]
+    UnexpectedToken,
 }
 
+// https://github.com/paritytech/lunarity/blob/master/lexer/src/token.rs
 fn ignore_comments<'source, Src>(lex: &mut Lexer<Token, Src>)
 where
     Src: Source<'source>,
@@ -99,6 +99,7 @@ mod test {
     use super::Token;
     use logos::Logos;
 
+    // https://github.com/paritytech/lunarity/blob/master/lexer/src/token.rs
     fn assert_lex<T>(source: &str, tokens: T)
     where
         T: AsRef<[(Token, &'static str)]>,
@@ -122,10 +123,14 @@ mod test {
 
     #[test]
     fn comments() {
-        assert_lex("/* hello world */", []);
+        assert_lex("/* hello world */       ", []);
         assert_lex("/* hello\r\nworld */", []);
         assert_lex(" /* hello world */ bar", [(Token::Ident, "bar")]);
-        assert_lex("/*hell* /world*/", []);
+        assert_lex("    /*hell* /world*/", []);
+        assert_lex(
+            "  /* hello world  ",
+            [(Token::UnexpectedToken, "/* hello world  ")],
+        );
         assert_lex("<!-- -->", [(Token::CDO, "<!--"), (Token::CDC, "-->")]);
     }
 }
