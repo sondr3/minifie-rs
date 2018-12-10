@@ -26,7 +26,7 @@ pub enum Token {
     #[token = "-->"]
     CDC,
 
-    #[regex = "[-+0-9.eE+-]+"]
+    #[regex = "[+-]?[0-9]*[.]?[0-9]+(?:[eE][+-]?[0-9]+)?"]
     Number,
     #[regex = "[-a-zA-Z_][a-zA-Z0-9_-]*"]
     Ident,
