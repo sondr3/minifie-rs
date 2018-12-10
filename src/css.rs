@@ -205,4 +205,55 @@ mod test {
         );
     }
 
+    #[test]
+    fn idents() {
+        assert_lex(
+            "color: red;",
+            &[
+                (Token::Ident, "color"),
+                (Token::Colon, ":"),
+                (Token::Ident, "red"),
+                (Token::Semicolon, ";"),
+            ],
+        );
+        assert_lex(
+            ".class { }",
+            &[
+                (Token::Period, "."),
+                (Token::Ident, "class"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "#class { }",
+            &[
+                (Token::Hash, "#"),
+                (Token::Ident, "class"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "@media print { }",
+            &[
+                (Token::At, "@"),
+                (Token::Ident, "media"),
+                (Token::Ident, "print"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "body { font: \"ComicSans\" }",
+            &[
+                (Token::Ident, "body"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "font"),
+                (Token::Colon, ":"),
+                (Token::String, "\"ComicSans\""),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+    }
 }
