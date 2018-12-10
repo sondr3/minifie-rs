@@ -26,7 +26,7 @@ pub enum Token {
     #[token = "-->"]
     CDC,
 
-    #[regex = "[0-9]+"]
+    #[regex = "[-+0-9.eE+-]+"]
     Number,
     #[regex = "[-a-zA-Z_][a-zA-Z0-9_-]*"]
     Ident,
@@ -122,6 +122,11 @@ mod test {
     }
 
     #[test]
+    fn empty() {
+        assert_lex("       ", []);
+    }
+
+    #[test]
     fn comments() {
         assert_lex("/* hello world */       ", []);
         assert_lex("/* hello\r\nworld */", []);
@@ -132,5 +137,32 @@ mod test {
             [(Token::UnexpectedToken, "/* hello world  ")],
         );
         assert_lex("<!-- -->", [(Token::CDO, "<!--"), (Token::CDC, "-->")]);
+    }
+
+    #[test]
+    fn strings() {
+        assert_lex(
+            "\"strings\" 'are' '' cool",
+            [
+                (Token::String, "\"strings\""),
+                (Token::String, "'are'"),
+                (Token::String, "''"),
+                (Token::Ident, "cool"),
+            ],
+        );
+    }
+
+    #[test]
+    fn numbers() {
+        assert_lex("5.2 .4", [(Token::Number, "5.2"), (Token::Number, ".4")]);
+        assert_lex(
+            "-10.2 -.2 4e-22",
+            [
+                (Token::Number, "-10.2"),
+                (Token::Number, "-.2"),
+                (Token::Number, "4e-22"),
+            ],
+        );
+        assert_lex("-5 +5.2", [(Token::Number, "-5"), (Token::Number, "+5.2")]);
     }
 }
