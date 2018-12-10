@@ -50,6 +50,10 @@ pub enum Token {
     #[token = ":"]
     Colon,
 
+    #[regex = "u\\+[0-9a-zA-Z]*"]
+    #[regex = "U\\+[0-9a-zA-Z]*"]
+    Unicode,
+
     #[token = "("]
     LeftParen,
     #[token = ")"]
@@ -156,13 +160,35 @@ mod test {
     fn numbers() {
         assert_lex("5.2 .4", [(Token::Number, "5.2"), (Token::Number, ".4")]);
         assert_lex(
-            "-10.2 -.2 4e-22",
+            "-10.2 -.2 4e-22 53E-22 67e+3 5.2E+22 5 -5 2E+1 8E-0",
             [
                 (Token::Number, "-10.2"),
                 (Token::Number, "-.2"),
                 (Token::Number, "4e-22"),
+                (Token::Number, "53E-22"),
+                (Token::Number, "67e+3"),
+                (Token::Number, "5.2E+22"),
+                (Token::Number, "5"),
+                (Token::Number, "-5"),
+                (Token::Number, "2E+1"),
+                (Token::Number, "8E-0"),
             ],
         );
         assert_lex("-5 +5.2", [(Token::Number, "-5"), (Token::Number, "+5.2")]);
+    }
+
+    #[test]
+    fn unicode() {
+        assert_lex(
+            "U+1234 u+1AAF U+A69F u+FaFF U+2FA1F U+1D7fF",
+            [
+                (Token::Unicode, "U+1234"),
+                (Token::Unicode, "u+1AAF"),
+                (Token::Unicode, "U+A69F"),
+                (Token::Unicode, "u+FaFF"),
+                (Token::Unicode, "U+2FA1F"),
+                (Token::Unicode, "U+1D7fF"),
+            ],
+        );
     }
 }
