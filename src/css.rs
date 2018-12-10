@@ -1,6 +1,6 @@
 use ::logos::{Lexer, Logos, Slice, Source};
 
-#[derive(Logos, Debug, PartialEq)]
+#[derive(Logos, Debug, PartialEq, Copy, Clone)]
 pub enum Token {
     #[end]
     End,
@@ -104,21 +104,15 @@ mod test {
     use logos::Logos;
 
     // https://github.com/paritytech/lunarity/blob/master/lexer/src/token.rs
-    fn assert_lex<T>(source: &str, tokens: T)
+    fn assert_lex<'a, Source>(source: Source, tokens: &[(Token, Source::Slice)])
     where
-        T: AsRef<[(Token, &'static str)]>,
+        Source: logos::Source<'a>,
     {
         let mut lex = Token::lexer(source);
 
-        for &(ref token, slice) in tokens.as_ref() {
-            assert!(
-                lex.token == *token && lex.slice() == slice,
-                "\n\n\n\tExpected {:?}({:?}), found {:?}({:?}) instead!\n\n\n",
-                token,
-                slice,
-                lex.token,
-                lex.slice()
-            );
+        for tuple in tokens {
+            assert_eq!(&(lex.token, lex.slice()), tuple);
+
             lex.advance();
         }
 
@@ -127,27 +121,27 @@ mod test {
 
     #[test]
     fn empty() {
-        assert_lex("       ", []);
+        assert_lex("       ", &[]);
     }
 
     #[test]
     fn comments() {
-        assert_lex("/* hello world */       ", []);
-        assert_lex("/* hello\r\nworld */", []);
-        assert_lex(" /* hello world */ bar", [(Token::Ident, "bar")]);
-        assert_lex("    /*hell* /world*/", []);
+        assert_lex("/* hello world */       ", &[]);
+        assert_lex("/* hello\r\nworld */", &[]);
+        assert_lex(" /* hello world */ bar", &[(Token::Ident, "bar")]);
+        assert_lex("    /*hell* /world*/", &[]);
         assert_lex(
             "  /* hello world  ",
-            [(Token::UnexpectedToken, "/* hello world  ")],
+            &[(Token::UnexpectedToken, "/* hello world  ")],
         );
-        assert_lex("<!-- -->", [(Token::CDO, "<!--"), (Token::CDC, "-->")]);
+        assert_lex("<!-- -->", &[(Token::CDO, "<!--"), (Token::CDC, "-->")]);
     }
 
     #[test]
     fn strings() {
         assert_lex(
             "\"strings\" 'are' '' cool",
-            [
+            &[
                 (Token::String, "\"strings\""),
                 (Token::String, "'are'"),
                 (Token::String, "''"),
@@ -158,10 +152,10 @@ mod test {
 
     #[test]
     fn numbers() {
-        assert_lex("5.2 .4", [(Token::Number, "5.2"), (Token::Number, ".4")]);
+        assert_lex("5.2 .4", &[(Token::Number, "5.2"), (Token::Number, ".4")]);
         assert_lex(
             "-10.2 -.2 4e-22 53E-22 67e+3 5.2E+22 5 -5 2E+1 8E-0",
-            [
+            &[
                 (Token::Number, "-10.2"),
                 (Token::Number, "-.2"),
                 (Token::Number, "4e-22"),
@@ -174,14 +168,14 @@ mod test {
                 (Token::Number, "8E-0"),
             ],
         );
-        assert_lex("-5 +5.2", [(Token::Number, "-5"), (Token::Number, "+5.2")]);
+        assert_lex("-5 +5.2", &[(Token::Number, "-5"), (Token::Number, "+5.2")]);
     }
 
     #[test]
     fn unicode() {
         assert_lex(
             "U+1234 u+1AAF U+A69F u+FaFF U+2FA1F U+1D7fF",
-            [
+            &[
                 (Token::Unicode, "U+1234"),
                 (Token::Unicode, "u+1AAF"),
                 (Token::Unicode, "U+A69F"),
