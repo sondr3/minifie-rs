@@ -55,17 +55,17 @@ pub enum Token {
     Unicode,
 
     #[token = "("]
-    LeftParen,
+    ParenOpen,
     #[token = ")"]
-    RightParen,
+    ParenClose,
     #[token = "{"]
-    LeftCurlyBracket,
+    CurlyBracketOpen,
     #[token = "}"]
-    RightCurlyBracket,
+    CurlyBracketClose,
     #[token = "["]
-    LeftBracket,
+    BracketOpen,
     #[token = "]"]
-    RightBracket,
+    BracketClose,
 
     #[token = "/*"]
     #[callback = "ignore_comments"]
@@ -191,4 +191,24 @@ mod test {
             ],
         );
     }
+
+    #[test]
+    fn controls() {
+        assert_lex(
+            "; : , . ( ) [ ] { }",
+            &[
+                (Token::Semicolon, ";"),
+                (Token::Colon, ":"),
+                (Token::Comma, ","),
+                (Token::Period, "."),
+                (Token::ParenOpen, "("),
+                (Token::ParenClose, ")"),
+                (Token::BracketOpen, "["),
+                (Token::BracketClose, "]"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+    }
+
 }
