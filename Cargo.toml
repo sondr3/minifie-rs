@@ -1,0 +1,7 @@
+[package]
+name = "minifie-rs"
+version = "0.1.0"
+authors = ["Sondre Nilsen <nilsen.sondre@gmail.com>"]
+edition = "2018"
+
+[dependencies]
