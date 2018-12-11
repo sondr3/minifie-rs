@@ -267,17 +267,19 @@ mod test {
 
     #[test]
     fn relative_lengths() {
-        assert_lex(".container { width: 40em; } /* em  */ ",
-        &[
-            (Token::Period, "."),
-            (Token::Ident, "container"),
-            (Token::CurlyBracketOpen, "{"),
-            (Token::Ident, "width"),
-            (Token::Colon, ":"),
-            (Token::Number, "40"),
-            (Token::RelativeLength, "em"),
-            (Token::CurlyBracketClose, "}"),
-        ]);
+        assert_lex(
+            ".container { width: 40em; } /* em  */ ",
+            &[
+                (Token::Period, "."),
+                (Token::Ident, "container"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "width"),
+                (Token::Colon, ":"),
+                (Token::Number, "40"),
+                (Token::RelativeLength, "em"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
     }
 
     #[test]
@@ -296,8 +298,8 @@ mod test {
         );
         assert_lex(
             "h2 { \
-            line-height: 3cm }   \
-            /* centimeters */",
+             line-height: 3cm }   \
+             /* centimeters */",
             &[
                 (Token::Ident, "h2"),
                 (Token::CurlyBracketOpen, "{"),
@@ -320,9 +322,8 @@ mod test {
                 (Token::CurlyBracketClose, "}"),
             ],
         );
-        // Doesn't work right this moment, see Logos#40, not that anyone uses Q
-/*        assert_lex(
-            "h3 { letter-spacing: 1Q } *//* quarter-millimeters *//*",
+        assert_lex(
+            "h3 { letter-spacing: 1Q } /* quarter-millimeters */",
             &[
                 (Token::Ident, "h3"),
                 (Token::CurlyBracketOpen, "{"),
@@ -332,7 +333,7 @@ mod test {
                 (Token::AbsoluteLength, "Q"),
                 (Token::CurlyBracketClose, "}"),
             ],
-        );*/
+        );
         assert_lex(
             "h4 { font-size: 12pt }    /* points */",
             &[
