@@ -59,6 +59,8 @@ pub enum Token {
     #[regex = "u\\+[0-9a-zA-Z]*"]
     #[regex = "U\\+[0-9a-zA-Z]*"]
     Unicode,
+    #[token = "url"]
+    URL,
 
     #[token = "("]
     ParenOpen,
@@ -261,6 +263,21 @@ mod test {
                 (Token::CurlyBracketClose, "}"),
             ],
         );
+    }
+
+    #[test]
+    fn relative_lengths() {
+        assert_lex(".container { width: 40em; } /* em  */ ",
+        &[
+            (Token::Period, "."),
+            (Token::Ident, "container"),
+            (Token::CurlyBracketOpen, "{"),
+            (Token::Ident, "width"),
+            (Token::Colon, ":"),
+            (Token::Number, "40"),
+            (Token::RelativeLength, "em"),
+            (Token::CurlyBracketClose, "}"),
+        ]);
     }
 
     #[test]
