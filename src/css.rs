@@ -94,11 +94,11 @@ where
                 0 => return lex.token = Token::UnexpectedToken,
                 b'*' => {
                     if lex.next() == b'/' {
-                        lex.bump();
+                        lex.bump(1);
                         break;
                     }
                 }
-                _ => lex.bump(),
+                _ => lex.bump(1),
             }
         }
     }
