@@ -26,6 +26,12 @@ pub enum Token {
     #[token = "-->"]
     CDC,
 
+    // https://www.w3.org/TR/css3-values/
+    #[regex = "em|ex|ch|rem|vw|vh|vmin|vmax"]
+    RelativeLength,
+    #[regex = "cm|mm|Q|in|pc|pt|px"]
+    AbsoluteLength,
+
     #[regex = "[+-]?[0-9]*[.]?[0-9]+(?:[eE][+-]?[0-9]+)?"]
     Number,
     #[regex = "[-a-zA-Z_][a-zA-Z0-9_-]*"]
@@ -252,6 +258,97 @@ mod test {
                 (Token::Ident, "font"),
                 (Token::Colon, ":"),
                 (Token::String, "\"ComicSans\""),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+    }
+
+    #[test]
+    fn absolute_lengths() {
+        assert_lex(
+            "h1 { margin: 0.5in }      /* inches  */",
+            &[
+                (Token::Ident, "h1"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "margin"),
+                (Token::Colon, ":"),
+                (Token::Number, "0.5"),
+                (Token::AbsoluteLength, "in"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "h2 { \
+            line-height: 3cm }   \
+            /* centimeters */",
+            &[
+                (Token::Ident, "h2"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "line-height"),
+                (Token::Colon, ":"),
+                (Token::Number, "3"),
+                (Token::AbsoluteLength, "cm"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "h3 { word-spacing: 4mm }  /* millimeters */",
+            &[
+                (Token::Ident, "h3"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "word-spacing"),
+                (Token::Colon, ":"),
+                (Token::Number, "4"),
+                (Token::AbsoluteLength, "mm"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        // Doesn't work right this moment, see Logos#40, not that anyone uses Q
+/*        assert_lex(
+            "h3 { letter-spacing: 1Q } *//* quarter-millimeters *//*",
+            &[
+                (Token::Ident, "h3"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "letter-spacing"),
+                (Token::Colon, ":"),
+                (Token::Number, "1"),
+                (Token::AbsoluteLength, "Q"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );*/
+        assert_lex(
+            "h4 { font-size: 12pt }    /* points */",
+            &[
+                (Token::Ident, "h4"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "font-size"),
+                (Token::Colon, ":"),
+                (Token::Number, "12"),
+                (Token::AbsoluteLength, "pt"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "h4 { font-size: 1pc }     /* picas */",
+            &[
+                (Token::Ident, "h4"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "font-size"),
+                (Token::Colon, ":"),
+                (Token::Number, "1"),
+                (Token::AbsoluteLength, "pc"),
+                (Token::CurlyBracketClose, "}"),
+            ],
+        );
+        assert_lex(
+            "p  { font-size: 12px }    /* px */",
+            &[
+                (Token::Ident, "p"),
+                (Token::CurlyBracketOpen, "{"),
+                (Token::Ident, "font-size"),
+                (Token::Colon, ":"),
+                (Token::Number, "12"),
+                (Token::AbsoluteLength, "px"),
                 (Token::CurlyBracketClose, "}"),
             ],
         );
