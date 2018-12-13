@@ -73,7 +73,7 @@ impl<'a> Lexer<'a> {
             Some('{') => Token::ObjectStart,
             Some('}') => Token::ObjectEnd,
             Some('[') => Token::ArrayStart,
-            Some(']') => Token::ObjectEnd,
+            Some(']') => Token::ArrayEnd,
             Some(c) => {
                 if c == '"' || c == '\'' {
                     self.read_string()
@@ -92,48 +92,57 @@ impl<'a> Lexer<'a> {
 mod test {
     use super::*;
 
-    #[test]
-    fn parse() {
-        let input = r#"{"a": "b", "c": "d"}"#;
-        let expected = vec![
-            Token::ObjectStart,
-            Token::String,
-            Token::Colon,
-            Token::String,
-            Token::Comma,
-            Token::String,
-            Token::Colon,
-            Token::String,
-            Token::ObjectEnd,
-        ];
-        let mut lexer = Lexer::new(input);
-        for t in expected {
+    fn assert_lex(source: &str, tokens: &[Token]) {
+        let mut lexer = Lexer::new(source);
+        for tok in tokens {
             let token = lexer.next_token();
-            assert_eq!(token, t);
+            assert_eq!(&token, tok, "found {:?}, expected {:?}", token, tok);
         }
     }
 
     #[test]
-    fn parse_2() {
-        let input = r#"{"a": [1, 2], "b": {"c": 3}}"#;
-        let expected = vec![
-            Token::ObjectStart,
-            Token::String,
-            Token::Colon,
-            Token::ArrayStart,
-            Token::Number,
-            Token::Comma,
-            Token::Number,
-            Token::ArrayEnd,
-            Token::Comma,
-            Token::String,
-            Token::Colon,
-            Token::ObjectStart,
-            Token::String,
-            Token::Colon,
-            Token::Number,
-            Token::ObjectEnd,
-            Token::ObjectEnd,
-        ];
+    fn parse_simple() {
+        assert_lex(
+            r#"{"a": "b", "c": "d"}"#,
+            &vec![
+                Token::ObjectStart,
+                Token::String,
+                Token::Colon,
+                Token::String,
+                Token::Comma,
+                Token::String,
+                Token::Colon,
+                Token::String,
+                Token::ObjectEnd,
+                Token::EndOfFile,
+            ],
+        );
+    }
+
+    #[test]
+    fn parse_nested() {
+        assert_lex(
+            r#"{"a": [1, 2], "b": {"c": 3}}"#,
+            &vec![
+                Token::ObjectStart,
+                Token::String,
+                Token::Colon,
+                Token::ArrayStart,
+                Token::Number,
+                Token::Comma,
+                Token::Number,
+                Token::ArrayEnd,
+                Token::Comma,
+                Token::String,
+                Token::Colon,
+                Token::ObjectStart,
+                Token::String,
+                Token::Colon,
+                Token::Number,
+                Token::ObjectEnd,
+                Token::ObjectEnd,
+                Token::EndOfFile,
+            ],
+        );
     }
 }
