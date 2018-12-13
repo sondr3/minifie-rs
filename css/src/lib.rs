@@ -1,4 +1,4 @@
-use ::logos::{Lexer, Logos, Slice, Source};
+use logos::{Lexer, Logos, Slice, Source};
 
 #[derive(Logos, Debug, PartialEq, Copy, Clone)]
 pub enum Token {
@@ -108,7 +108,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::Token;
+    use super::*;
     use logos::Logos;
 
     // https://github.com/paritytech/lunarity/blob/master/lexer/src/token.rs

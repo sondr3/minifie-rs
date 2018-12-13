@@ -1,8 +1,5 @@
-[package]
-name = "minifie-rs"
-version = "0.1.0"
-authors = ["Sondre Nilsen <nilsen.sondre@gmail.com>"]
-edition = "2018"
-
-[dependencies]
-logos = "0.9"
+[workspace]
+members = [
+    "css",
+    "json"
+]
