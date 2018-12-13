@@ -86,8 +86,7 @@ impl<'a> Lexer<'a> {
                     self.read_number(c)
                 } else if c == '"' || c == '\'' {
                     let c = self.read().unwrap();
-                    let token = self.read_string(c, true);
-                    token
+                    self.read_string(c, true)
                 } else if c.is_alphabetic() {
                     self.read_string(c, false)
                 } else {
