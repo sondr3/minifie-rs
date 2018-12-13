@@ -2,7 +2,7 @@ use std::iter::Peekable;
 use std::str::Chars;
 
 #[derive(Debug, PartialEq, Clone)]
-enum Token {
+pub enum Token {
     String(String),
     Number(String),
     Comma,
@@ -15,12 +15,12 @@ enum Token {
     Error,
 }
 
-struct Lexer<'a> {
+pub struct Lexer<'a> {
     input: Peekable<Chars<'a>>,
 }
 
 impl<'a> Lexer<'a> {
-    fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Self {
         Lexer {
             input: input.chars().peekable(),
         }
@@ -47,7 +47,7 @@ impl<'a> Lexer<'a> {
         let mut ident = String::new();
         ident.push(init);
         while let Some(c) = self.peek() {
-            if !c.is_alphabetic() {
+            if !c.is_alphabetic() && c != &' ' {
                 break;
             }
             ident.push(self.read().expect("Could not parse ident"));
@@ -71,7 +71,7 @@ impl<'a> Lexer<'a> {
         Token::Number(number)
     }
 
-    pub fn next_token(&mut self) -> Token {
+    fn next_token(&mut self) -> Token {
         self.skip_whitespace();
 
         match self.read() {
@@ -96,6 +96,15 @@ impl<'a> Lexer<'a> {
             }
             None => Token::EndOfFile,
         }
+    }
+
+    pub fn read_to_end(&mut self) -> Vec<Token> {
+        let mut tokens = Vec::new();
+        while self.peek() != None {
+            tokens.push(self.next_token());
+        }
+
+        tokens
     }
 }
 
