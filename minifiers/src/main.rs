@@ -11,5 +11,9 @@ struct Opt {
 
 fn main() {
     let opt = Opt::from_args();
-    println!("{:?}", opt);
+    for file in &opt.files {
+        if file.extension().unwrap() == "json" {
+            println!("its JSON BABY");
+        }
+    }
 }
