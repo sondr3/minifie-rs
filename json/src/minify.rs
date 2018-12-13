@@ -33,7 +33,10 @@ impl fmt::Display for Minify {
                 Token::ArrayStart => output.push("["),
                 Token::ArrayEnd => output.push("]"),
                 Token::EndOfFile => break,
-                _ => unreachable!()
+                Token::Error => {
+                    eprintln!("Parsing error!");
+                    break;
+                }
             }
         }
 
