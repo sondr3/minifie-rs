@@ -55,8 +55,9 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_number(&mut self) -> Token {
+        let allowed = vec!['.', 'e', 'E', '+', '-'];
         while let Some(c) = self.peek() {
-            if !c.is_numeric() {
+            if !c.is_numeric() && !allowed.contains(c) {
                 break;
             }
             self.read();
@@ -75,10 +76,10 @@ impl<'a> Lexer<'a> {
             Some('[') => Token::ArrayStart,
             Some(']') => Token::ArrayEnd,
             Some(c) => {
-                if c == '"' || c == '\'' {
-                    self.read_string()
-                } else if c.is_numeric() {
+                if c.is_numeric() || c == '-' {
                     self.read_number()
+                } else if c == '"' || c == '\'' || c.is_alphabetic() {
+                    self.read_string()
                 } else {
                     Token::Error
                 }
@@ -144,5 +145,23 @@ mod test {
                 Token::EndOfFile,
             ],
         );
+    }
+
+    #[test]
+    fn grammar() {
+        assert_lex("  \t\n\r", &vec![]);
+        assert_lex("null", &vec![Token::String]);
+        assert_lex("[]", &vec![Token::ArrayStart, Token::ArrayEnd]);
+        assert_lex("{}", &vec![Token::ObjectStart, Token::ObjectEnd]);
+        assert_lex("15.2", &vec![Token::Number]);
+        assert_lex("0.2", &vec![Token::Number]);
+        assert_lex("5e9", &vec![Token::Number]);
+        assert_lex("-4E-3", &vec![Token::Number]);
+        assert_lex("true", &vec![Token::String]);
+        assert_lex("false", &vec![Token::String]);
+        assert_lex(r#""""#, &vec![Token::String]);
+        assert_lex(r#""a""#, &vec![Token::String]);
+        assert_lex(r#""\"""#, &vec![Token::String]);
+        assert_lex(r#""\\""#, &vec![Token::String]);
     }
 }
