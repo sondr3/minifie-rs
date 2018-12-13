@@ -1,9 +1,9 @@
-use std::path::PathBuf;
-use structopt::StructOpt;
+use json::minify::Minify;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Read;
-use json::minify::Minify;
+use std::path::PathBuf;
+use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "minifiers")]
