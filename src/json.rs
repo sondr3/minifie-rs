@@ -3,8 +3,8 @@ use std::str::Chars;
 
 #[derive(Debug, PartialEq)]
 enum Token {
-    String(String),
-    Number(String),
+    String,
+    Number,
     Comma,
     Colon,
     ObjectStart,
@@ -44,26 +44,24 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_string(&mut self) -> Token {
-        let mut ident = String::new();
         while let Some(c) = self.peek() {
             if !c.is_alphabetic() {
                 break;
             }
-            ident.push(self.read().unwrap());
+            self.read();
         }
         self.read();
-        Token::String(ident)
+        Token::String
     }
 
     fn read_number(&mut self) -> Token {
-        let mut number = String::new();
         while let Some(c) = self.peek() {
             if !c.is_numeric() {
                 break;
             }
-            number.push(self.read().unwrap());
+            self.read();
         }
-        Token::Number(number)
+        Token::Number
     }
 
     pub fn next_token(&mut self) -> Token {
@@ -99,13 +97,13 @@ mod test {
         let input = r#"{"a": "b", "c": "d"}"#;
         let expected = vec![
             Token::ObjectStart,
-            Token::String("a".to_string()),
+            Token::String,
             Token::Colon,
-            Token::String("b".to_string()),
+            Token::String,
             Token::Comma,
-            Token::String("c".to_string()),
+            Token::String,
             Token::Colon,
-            Token::String("d".to_string()),
+            Token::String,
             Token::ObjectEnd,
         ];
         let mut lexer = Lexer::new(input);
@@ -120,20 +118,20 @@ mod test {
         let input = r#"{"a": [1, 2], "b": {"c": 3}}"#;
         let expected = vec![
             Token::ObjectStart,
-            Token::String("a".to_string()),
+            Token::String,
             Token::Colon,
             Token::ArrayStart,
-            Token::Number("1".to_string()),
+            Token::Number,
             Token::Comma,
-            Token::Number("2".to_string()),
+            Token::Number,
             Token::ArrayEnd,
             Token::Comma,
-            Token::String("b".to_string()),
+            Token::String,
             Token::Colon,
             Token::ObjectStart,
-            Token::String("c".to_string()),
+            Token::String,
             Token::Colon,
-            Token::Number("3".to_string()),
+            Token::Number,
             Token::ObjectEnd,
             Token::ObjectEnd,
         ];
