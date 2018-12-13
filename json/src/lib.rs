@@ -1,2 +1,2 @@
-mod tokens;
 pub mod minify;
+mod tokens;

@@ -1,6 +1,6 @@
+use json::minify::Minify;
 use std::fs::File;
 use std::io::BufReader;
-use json::minify::Minify;
 use std::io::Read;
 
 fn read_file(filename: &str) -> String {

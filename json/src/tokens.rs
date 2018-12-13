@@ -5,6 +5,9 @@ use std::str::Chars;
 pub enum Token {
     String(String),
     Number(String),
+    Null,
+    True,
+    False,
     Comma,
     Colon,
     ObjectStart,
@@ -43,7 +46,7 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn read_string(&mut self, init: char, inside: bool) -> Token {
+    fn read_string(&mut self, init: char) -> Token {
         let mut ident = String::new();
         ident.push(init);
         while let Some(c) = self.peek() {
@@ -52,9 +55,7 @@ impl<'a> Lexer<'a> {
             }
             ident.push(self.read().expect("Could not parse ident"));
         }
-        if inside {
-            self.read();
-        }
+        self.read();
         Token::String(ident)
     }
 
@@ -82,13 +83,26 @@ impl<'a> Lexer<'a> {
             Some('[') => Token::ArrayStart,
             Some(']') => Token::ArrayEnd,
             Some(c) => {
-                if c.is_numeric() || c == '-' {
-                    self.read_number(c)
+                if c == 'n' && self.peek() == Some(&'u') {
+                    for _ in 0..3 {
+                        self.read();
+                    }
+                    Token::Null
+                } else if c == 't' && self.peek() == Some(&'r') {
+                    for _ in 0..3 {
+                        self.read();
+                    }
+                    Token::True
+                } else if c == 'f' && self.peek() == Some(&'a') {
+                    for _ in 0..4 {
+                        self.read();
+                    }
+                    Token::False
                 } else if c == '"' || c == '\'' {
                     let c = self.read().unwrap();
-                    self.read_string(c, true)
-                } else if c.is_alphabetic() {
-                    self.read_string(c, false)
+                    self.read_string(c)
+                } else if c.is_numeric() || c == '-' {
+                    self.read_number(c)
                 } else {
                     Token::Error
                 }
@@ -168,15 +182,15 @@ mod test {
     #[test]
     fn grammar() {
         assert_lex("  \t\n\r", &vec![]);
-        assert_lex("null", &vec![Token::String("null".to_string())]);
+        assert_lex("null", &vec![Token::Null]);
         assert_lex("[]", &vec![Token::ArrayStart, Token::ArrayEnd]);
         assert_lex("{}", &vec![Token::ObjectStart, Token::ObjectEnd]);
         assert_lex("15.2", &vec![Token::Number("15.2".to_string())]);
         assert_lex("0.2", &vec![Token::Number("0.2".to_string())]);
         assert_lex("5e9", &vec![Token::Number("5e9".to_string())]);
         assert_lex("-4E-3", &vec![Token::Number("-4E-3".to_string())]);
-        assert_lex("true", &vec![Token::String("true".to_string())]);
-        assert_lex("false", &vec![Token::String("false".to_string())]);
+        assert_lex("true", &vec![Token::True]);
+        assert_lex("false", &vec![Token::False]);
         assert_lex(r#""""#, &vec![Token::String("\"".to_string())]);
         assert_lex(r#""a""#, &vec![Token::String("a".to_string())]);
         assert_lex(r#""\\""#, &vec![Token::String("\\".to_string())]);
@@ -184,7 +198,7 @@ mod test {
             "[null,]",
             &vec![
                 Token::ArrayStart,
-                Token::String("null".to_string()),
+                Token::Null,
                 Token::Comma,
                 Token::ArrayEnd,
             ],

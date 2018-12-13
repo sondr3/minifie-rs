@@ -26,6 +26,9 @@ impl fmt::Display for Minify {
                     output.push("\"");
                 }
                 Token::Number(string) => output.push(string.as_str()),
+                Token::Null => output.push("null"),
+                Token::True => output.push("true"),
+                Token::False => output.push("false"),
                 Token::Comma => output.push(","),
                 Token::Colon => output.push(":"),
                 Token::ObjectStart => output.push("{"),
@@ -66,6 +69,9 @@ mod test {
   "messages": ["hello", "world", "!"]
 }"#;
         let minified = Minify::new(input);
-        assert_eq!(r#"{"name":"ola nordmann","age":100,"messages":["hello","world","!"]}"#, format!("{}", minified));
+        assert_eq!(
+            r#"{"name":"ola nordmann","age":100,"messages":["hello","world","!"]}"#,
+            format!("{}", minified)
+        );
     }
 }
