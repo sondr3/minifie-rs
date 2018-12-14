@@ -5,3 +5,10 @@ authors = ["Sondre Nilsen <nilsen.sondre@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "minifier_bench"
+harness = false
