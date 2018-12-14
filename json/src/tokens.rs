@@ -80,9 +80,8 @@ impl<'a> Lexer<'a> {
     fn read_number(&mut self, init: char) -> Token {
         let mut number = String::new();
         number.push(init);
-        let allowed = vec!['.', 'e', 'E', '+', '-'];
         while let Some(c) = self.peek() {
-            if !c.is_numeric() && !allowed.contains(c) {
+            if c == &',' || c == &']' || c == &'}' {
                 break;
             }
             number.push(self.read().expect("Could not parse number"));
