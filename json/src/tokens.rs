@@ -46,6 +46,24 @@ impl<'a> Lexer<'a> {
         }
     }
 
+    fn read_ident(&mut self, target: &str) -> bool {
+        let mut clone = self.input.clone();
+        let len = target.len();
+        for c in target.chars() {
+            if clone.next() == Some(c) {
+                continue;
+            } else {
+                return false;
+            }
+        }
+
+        for _ in 0..len {
+            self.read();
+        }
+
+        true
+    }
+
     fn read_string(&mut self, init: char) -> Token {
         let mut ident = String::new();
         ident.push(init);
@@ -83,20 +101,11 @@ impl<'a> Lexer<'a> {
             Some('[') => Token::ArrayStart,
             Some(']') => Token::ArrayEnd,
             Some(c) => {
-                if c == 'n' && self.peek() == Some(&'u') {
-                    for _ in 0..3 {
-                        self.read();
-                    }
+                if c == 'n' && self.read_ident("ull") {
                     Token::Null
-                } else if c == 't' && self.peek() == Some(&'r') {
-                    for _ in 0..3 {
-                        self.read();
-                    }
+                } else if c == 't' && self.read_ident("rue") {
                     Token::True
-                } else if c == 'f' && self.peek() == Some(&'a') {
-                    for _ in 0..4 {
-                        self.read();
-                    }
+                } else if c == 'f' && self.read_ident("alse") {
                     Token::False
                 } else if c == '"' || c == '\'' {
                     let c = self.read().unwrap();
