@@ -81,7 +81,6 @@ impl<'a> Lexer<'a> {
             if slash && c == &'"' {
                 slash = false;
             }
-            eprintln!("{:?}", c);
             ident.push(self.read().expect("Could not parse ident"));
         }
         self.read();
