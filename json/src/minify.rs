@@ -74,4 +74,25 @@ mod test {
             format!("{}", minified)
         );
     }
+
+    // https://github.com/getify/JSON.minify/blob/javascript/tests.js
+    #[test]
+    fn json_minify_js_1() {
+        let source = "\
+			{\n\
+				\"foo\": \"bar\",	\n\
+				\"bar\": [\n\
+					\"baz\", \"bum\", \"zam\"\n\
+				],\n\
+                \n
+				\"something\": 10,\n\
+				\"else\": 20\n\
+			}\n\
+			\n\
+			*/\n";
+        assert_eq!(
+            "{\"foo\":\"bar\",\"bar\":[\"baz\",\"bum\",\"zam\"],\"something\":10,\"else\":20}",
+            format!("{}", Minify::new(source))
+        );
+    }
 }
